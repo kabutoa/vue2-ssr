@@ -4,18 +4,32 @@ const router = require('koa-router')()
 const app = new Koa()
 app.use(router.routes())
 
+const Vue = require('vue')
+const renderer = require('vue-server-renderer').createRenderer()
+
+const vueInstance = new Vue({
+  template: `<div>{{ msg }}</div>`,
+  data() {
+    return {
+      msg: `This is renderred by vue-server-renderer`
+    }
+  }
+})
+
 router.get('/', ctx => {
-  ctx.body = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <title>test</title>
-      </head>
-      <body>
-        <div>This is a server rendering page</div>
-      </body>
-    </html>
-  `
+  renderer.renderToString(vueInstance, (err, html) => {
+    ctx.body = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>test</title>
+        </head>
+        <body>
+          ${html}
+        </body>
+      </html>
+    `
+  })
 })
 
 app.listen(3000, () => {
